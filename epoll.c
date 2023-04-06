@@ -65,7 +65,7 @@ struct evepoll {
 };
 
 struct epollop {
-	// 被监听的事件和fd绑定的列表
+	// 被监听的事件和fd绑定的列表，支持0~32000的fd，超过后会报错
 	struct evepoll *fds;
 	// 最大监听的 fd 数量
 	int nfds;
