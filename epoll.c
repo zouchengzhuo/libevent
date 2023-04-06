@@ -58,16 +58,24 @@ extern volatile sig_atomic_t evsignal_caught;
  * all file descriptors outself.
  */
 struct evepoll {
+	// 若监听了可读事件，则有值
 	struct event *evread;
+	// 若监听了可写事件，则有值
 	struct event *evwrite;
 };
 
 struct epollop {
+	// 被监听的事件和fd绑定的列表
 	struct evepoll *fds;
+	// 最大监听的 fd 数量
 	int nfds;
+	// 监听的 epoll_event 数组
 	struct epoll_event *events;
+	// 监听的 epoll_event 数组长度
 	int nevents;
+	// epoll fd 的值
 	int epfd;
+	// 监听的进程信号值
 	sigset_t evsigmask;
 };
 

@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-07-14 03:19:21
  * @LastEditors: czzou
- * @LastEditTime: 2023-03-21 11:12:32
+ * @LastEditTime: 2023-04-06 11:19:35
  * @FilePath: /libevent/event-internal.h
  */
 /*
@@ -38,9 +38,9 @@ extern "C" {
 #endif
 
 struct event_base {
-	// 选择的 多路复用库 结构体
+	// 选择的 多路复用库 的 eventop 对象
 	const struct eventop *evsel;
-	// 选择的 多路复用库 结构体的实例指针
+	// 选择的 多路复用库 的属性对象，如 epollop、kqop（kqueue op）等
 	void *evbase;
 	// event计数
 	int event_count;		/* counts number of total events */
