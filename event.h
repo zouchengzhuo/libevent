@@ -76,11 +76,15 @@ struct {								\
 
 struct event_base;
 struct event {
+	// 该事件在事件链表中的前后节点
 	TAILQ_ENTRY (event) ev_next;
+	// 该事件在活跃事件链表中的前后节点
 	TAILQ_ENTRY (event) ev_active_next;
+	// 该事件在信号事件链表中的前后节点
 	TAILQ_ENTRY (event) ev_signal_next;
+	// 该事件在超时红黑树中的节点描述信息
 	RB_ENTRY (event) ev_timeout_node;
-
+	// 该事件被绑定到的 event_base 变量指针
 	struct event_base *ev_base;
 	// event 绑定的目标 fd
 	int ev_fd;
@@ -102,7 +106,7 @@ struct event {
 	void *ev_arg;
 	// 事件结果，回调时传给第二个参数
 	int ev_res;		/* result passed to event callback */
-	// TODO：事件状态，从哪些维度描述
+	// 该 event 上被绑定的事件类型
 	int ev_flags;
 };
 
