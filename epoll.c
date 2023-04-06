@@ -270,7 +270,13 @@ epoll_dispatch(struct event_base *base, void *arg, struct timeval *tv)
 	return (0);
 }
 
-
+/**
+ * @brief 向 epoll 中添加事件注册
+ * 
+ * @param arg epollop 指针
+ * @param ev 需要被添加到 epoll 监听的 event 指针
+ * @return int 
+ */
 int
 epoll_add(void *arg, struct event *ev)
 {
