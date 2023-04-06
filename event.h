@@ -106,7 +106,7 @@ struct event {
 	void *ev_arg;
 	// 事件结果，回调时传给第二个参数
 	int ev_res;		/* result passed to event callback */
-	// 该 event 上被绑定的事件类型
+	// 该 event 当前所处的事件队列或超时红黑树（可以同时在多个队列中）
 	int ev_flags;
 };
 
