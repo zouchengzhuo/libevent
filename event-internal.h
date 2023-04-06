@@ -1,4 +1,10 @@
 /*
+ * @Date: 2022-07-14 03:19:21
+ * @LastEditors: czzou
+ * @LastEditTime: 2023-03-21 11:12:32
+ * @FilePath: /libevent/event-internal.h
+ */
+/*
  * Copyright (c) 2000-2004 Niels Provos <provos@citi.umich.edu>
  * All rights reserved.
  *
@@ -32,20 +38,28 @@ extern "C" {
 #endif
 
 struct event_base {
+	// 选择的 多路复用库 结构体
 	const struct eventop *evsel;
+	// 选择的 多路复用库 结构体的实例指针
 	void *evbase;
+	// event计数
 	int event_count;		/* counts number of total events */
+	// 激活状态 event 计数
 	int event_count_active;	/* counts number of active events */
-
+	// 将 eventloop 设置为停止状态
 	int event_gotterm;		/* Set to terminate loop */
 
 	/* active event management */
+	// 激活状态的 event 链表列表，注意是个双重指针，一个优先级指向一个队列
+	// 若没有指定，则event_init的时候默认设置优先级数量为1，即只有一个队列
 	struct event_list **activequeues;
+	// 激活状态的队列数量，根据指定的优先级分配
 	int nactivequeues;
-
+	// 全部的 event 链表
 	struct event_list eventqueue;
+	// event_base创建时设置为当前时间，事件循环中每次循环时设置为当前时间
 	struct timeval event_tv;
-
+	// 超时事件的tree
 	RB_HEAD(event_tree, event) timetree;
 };
 

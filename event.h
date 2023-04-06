@@ -38,12 +38,12 @@ extern "C" {
 typedef unsigned char u_char;
 #endif
 
-#define EVLIST_TIMEOUT	0x01
-#define EVLIST_INSERTED	0x02
-#define EVLIST_SIGNAL	0x04
-#define EVLIST_ACTIVE	0x08
-#define EVLIST_INTERNAL	0x10
-#define EVLIST_INIT	0x80
+#define EVLIST_TIMEOUT	0x01 // 表示 event 已经超时，等待被处理
+#define EVLIST_INSERTED	0x02 // 表示 event 已经被添加到 event_base 中，等待被处理
+#define EVLIST_SIGNAL	0x04 // 表示 event 是一个信号事件。
+#define EVLIST_ACTIVE	0x08 // 表示 event 正在被处理
+#define EVLIST_INTERNAL	0x10 // 表示 event 是一个内部事件
+#define EVLIST_INIT	0x80 // 表示 event 已经被初始化，但还没有被添加到 event_base 中
 
 /* EVLIST_X_ Private space: 0x1000-0xf000 */
 #define EVLIST_ALL	(0xf000 | 0x9f)
@@ -82,19 +82,27 @@ struct event {
 	RB_ENTRY (event) ev_timeout_node;
 
 	struct event_base *ev_base;
+	// event 绑定的目标 fd
 	int ev_fd;
+	// event 需要监听的事件（可读、可写等）
 	short ev_events;
+	// 事件被触发的次数
 	short ev_ncalls;
+	// 事件上次被激活后触发的次数
+	// 如果该事件在回调函数中被重新注册，那么ev_pncalls会被设置为ev_ncalls的值，表示该事件在下一次被激活时应该触发ev_ncalls-ev_pncalls次。
+	// 这样可以确保事件在回调函数中被重新注册后，不会立即被再次触发，从而避免事件处理器进入死循环。
 	short *ev_pncalls;	/* Allows deletes in callback */
-
+	// 超时时间，在 event_add 时传入一个时间，加上当前时间后赋值给 ev_timeout
 	struct timeval ev_timeout;
-
+	// 事件的优先级
 	int ev_pri;		/* smaller numbers are higher priority */
-
+	// 事件触发时执行的回调函数
 	void (*ev_callback)(int, short, void *arg);
+	// 事件参数，回调时传给 arg
 	void *ev_arg;
-
+	// 事件结果，回调时传给第二个参数
 	int ev_res;		/* result passed to event callback */
+	// TODO：事件状态，从哪些维度描述
 	int ev_flags;
 };
 
@@ -191,14 +199,19 @@ int	event_priority_set(struct event *, int);
 /* These functions deal with buffering input and output */
 
 struct evbuffer {
+	// 有数据的内存区块起点
 	u_char *buffer;
+	// 原始分配的内存区块起点
 	u_char *orig_buffer;
-
+	// 有数据的内存区块相对于起点的偏移量，即 buffer - orig_buffer
 	size_t misalign;
+	// 原始分配的内存区块总长
 	size_t totallen;
+	// 实际数据便宜量，如实际数据起点是 *buffer，终点是 buffer + 100，则 off 是 100
 	size_t off;
-
+	// 各种操作完毕后被执行的回调函数
 	void (*cb)(struct evbuffer *, size_t, size_t, void *);
+	// 传递给回调函数的最后一个参数
 	void *cbarg;
 };
 

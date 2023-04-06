@@ -147,6 +147,14 @@ epoll_init(void)
 	return (epollop);
 }
 
+/**
+ * @brief 
+ * 
+ * @param base 
+ * @param arg 
+ * @param max 
+ * @return int 
+ */
 int
 epoll_recalc(struct event_base *base, void *arg, int max)
 {
@@ -174,6 +182,14 @@ epoll_recalc(struct event_base *base, void *arg, int max)
 	return (evsignal_recalc(&epollop->evsigmask));
 }
 
+/**
+ * @brief 执行一次 epoll_wait，并分发被激活的事件
+ * 
+ * @param base event_base 指针
+ * @param arg epolltop指针
+ * @param tv epoll_wait 超时时间
+ * @return int 
+ */
 int
 epoll_dispatch(struct event_base *base, void *arg, struct timeval *tv)
 {
@@ -181,7 +197,7 @@ epoll_dispatch(struct event_base *base, void *arg, struct timeval *tv)
 	struct epoll_event *events = epollop->events;
 	struct evepoll *evep;
 	int i, res, timeout;
-
+	// 将要监听的信号量解除阻塞，以让进程可以响应此信号量
 	if (evsignal_deliver(&epollop->evsigmask) == -1)
 		return (-1);
 
@@ -203,7 +219,7 @@ epoll_dispatch(struct event_base *base, void *arg, struct timeval *tv)
 		evsignal_process();
 
 	event_debug(("%s: epoll_wait reports %d", __func__, res));
-
+	// 遍历被触发的事件
 	for (i = 0; i < res; i++) {
 		int which = 0;
 		int what = events[i].events;
@@ -236,8 +252,10 @@ epoll_dispatch(struct event_base *base, void *arg, struct timeval *tv)
 			event_del(evwrite);
 
 		if (evread != NULL)
+			// 将触发可读事件的 event 放到激活队列中
 			event_active(evread, EV_READ, 1);
 		if (evwrite != NULL)
+			// 将触发可写事件的 event 放到激活队列中
 			event_active(evwrite, EV_WRITE, 1);
 	}
 
@@ -253,6 +271,7 @@ epoll_add(void *arg, struct event *ev)
 	struct evepoll *evep;
 	int fd, op, events;
 
+	// 如果 event 是 signal event，将要监听的信号量写入 pollop->evsigmask 中
 	if (ev->ev_events & EV_SIGNAL)
 		return (evsignal_add(&epollop->evsigmask, ev));
 
