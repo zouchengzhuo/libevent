@@ -567,6 +567,13 @@ event_pending(struct event *ev, short event, struct timeval *tv)
 	return (flags & event);
 }
 
+/**
+ * @brief 向 event_base 中绑定一个 event
+ * 
+ * @param ev 被绑定的 event
+ * @param tv 超时时间
+ * @return int 
+ */
 int
 event_add(struct event *ev, struct timeval *tv)
 {
